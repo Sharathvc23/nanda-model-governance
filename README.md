@@ -9,7 +9,7 @@ Enforces that no single execution path can train, approve, **and** deploy a mode
 | Package | Question it answers |
 |---------|-------------------|
 | [`nanda-model-provenance`](https://github.com/Sharathvc23/nanda-model-provenance) | "Where did this model come from?" (identity, versioning, provider, NANDA serialization) |
-| [`nanda-model-card`](https://github.com/Sharathvc23/model-card) | "What is this model?" (unified metadata schema — type, status, risk level, metrics, weights hash) |
+| [`nanda-model-card`](https://github.com/Sharathvc23/nanda-model-card) | "What is this model?" (unified metadata schema — type, status, risk level, metrics, weights hash) |
 | [`nanda-model-integrity-layer`](https://github.com/Sharathvc23/nanda-model-integrity-layer) | "Does this model's metadata meet policy?" (rule-based checks) |
 | `nanda-model-governance` (this package) | "Has this model been cryptographically approved for deployment?" (approval flow with signatures, quorum, scoping, revocation) |
 | [`nanda-bridge`](https://github.com/Sharathvc23/nanda-bridge) | "How do I expose this to the NANDA network?" (FastAPI router, AgentFacts models, delta sync) |
@@ -18,19 +18,19 @@ Enforces that no single execution path can train, approve, **and** deploy a mode
 
 ```bash
 # Core (zero dependencies)
-pip install nanda-model-governance
+pip install git+https://github.com/Sharathvc23/nanda-model-governance.git
 
 # With Ed25519 signing
-pip install nanda-model-governance[crypto]
+pip install "nanda-model-governance[crypto] @ git+https://github.com/Sharathvc23/nanda-model-governance.git"
 
 # With PostgreSQL store
-pip install nanda-model-governance[postgres]
+pip install "nanda-model-governance[postgres] @ git+https://github.com/Sharathvc23/nanda-model-governance.git"
 
 # With integrity layer bridge
-pip install nanda-model-governance[integrity]
+pip install "nanda-model-governance[integrity] @ git+https://github.com/Sharathvc23/nanda-model-governance.git"
 
 # Development
-pip install nanda-model-governance[dev]
+pip install "nanda-model-governance[dev] @ git+https://github.com/Sharathvc23/nanda-model-governance.git"
 ```
 
 ## Quick Start
