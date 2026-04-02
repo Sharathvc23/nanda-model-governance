@@ -106,7 +106,5 @@ The drift detection system supports both distribution drift (via the custom KS s
 
 ## References
 
-1. NIST. (2020). "Recommendation for Key Management: Part 1." NIST SP 800-57 Part 1, Rev. 5.
-2. Bernstein, D.J. et al. (2012). "High-speed high-security signatures." *J. Cryptographic Engineering*, 2(2), pp. 77-89.
-3. Kolmogorov, A.N. (1933). "Sulla determinazione empirica di una legge di distribuzione." *Giornale dell'Istituto Italiano degli Attuari*, 4, pp. 83-91.
-4. NANDA Protocol. "Network of AI Agents in Decentralized Architecture." https://projectnanda.org
+1. NANDA Protocol. "Network of AI Agents in Decentralized Architecture." https://projectnanda.org
+2. NIST. "Recommendation for Key Management." NIST SP 800-57. https://csrc.nist.gov/pubs/sp/800-57-pt1/r5/final
