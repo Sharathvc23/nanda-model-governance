@@ -169,10 +169,10 @@ ruff check nanda_governance/
 mypy nanda_governance/ --strict
 ```
 
-## Credits
-
-Developed by [stellarminds.ai](https://stellarminds.ai), 
-
 ## License
 
 MIT
+
+---
+
+*Developed by [stellarminds.ai](https://stellarminds.ai) — Research Contribution to [Project NANDA](https://projectnanda.org)*
