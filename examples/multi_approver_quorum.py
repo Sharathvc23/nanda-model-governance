@@ -46,15 +46,11 @@ async def main() -> None:
     print(f"Alice signed. Quorum met? {approval.has_quorum()}")
 
     # Second approval (Bob)
-    has_quorum = coord.add_approval_signature(
-        "classifier-v2", "bob", key_bob
-    )
+    has_quorum = coord.add_approval_signature("classifier-v2", "bob", key_bob)
     print(f"Bob signed. Quorum met? {has_quorum}")
 
     # Deploy with signature verification
-    result = await coord.deploy_approved(
-        approval, public_key=pub_alice
-    )
+    result = await coord.deploy_approved(approval, public_key=pub_alice)
     print(f"Deployed: {result.promoted}")
 
 

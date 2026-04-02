@@ -34,9 +34,7 @@ def approval_to_integrity_facts(
             "approved_by": approval.approved_by,
             "approved_at": approval.approved_at.isoformat(),
             "expires_at": (
-                approval.expires_at.isoformat()
-                if approval.expires_at
-                else None
+                approval.expires_at.isoformat() if approval.expires_at else None
             ),
             "status": approval.status,
             "profile": approval.profile,
@@ -76,14 +74,10 @@ def create_provenance_with_approval(
 
     # Merge governance metadata
     extra = provenance_kwargs.pop("extra_metadata", {})
-    extra["governance"] = approval_to_integrity_facts(approval)[
-        "governance"
-    ]
+    extra["governance"] = approval_to_integrity_facts(approval)["governance"]
 
     return ModelProvenance(
-        weights_hash=provenance_kwargs.pop(
-            "weights_hash", approval.weights_hash
-        ),
+        weights_hash=provenance_kwargs.pop("weights_hash", approval.weights_hash),
         extra_metadata=extra,
         **provenance_kwargs,
     )

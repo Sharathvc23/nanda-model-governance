@@ -48,16 +48,12 @@ def test_compute_hash_excludes_mutable_fields() -> None:
 
 
 def test_is_expired_not_expired() -> None:
-    a = ModelApproval(
-        expires_at=datetime.now(UTC) + timedelta(days=30)
-    )
+    a = ModelApproval(expires_at=datetime.now(UTC) + timedelta(days=30))
     assert a.is_expired() is False
 
 
 def test_is_expired_expired() -> None:
-    a = ModelApproval(
-        expires_at=datetime.now(UTC) - timedelta(seconds=1)
-    )
+    a = ModelApproval(expires_at=datetime.now(UTC) - timedelta(seconds=1))
     assert a.is_expired() is True
 
 

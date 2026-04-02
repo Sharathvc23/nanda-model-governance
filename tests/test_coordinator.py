@@ -6,9 +6,8 @@ from typing import Any
 
 import pytest
 
-from nanda_governance.coordinator import GovernanceCoordinator
 from nanda_governance.contracts import ValidationResult
-from nanda_governance.stores.memory import InMemoryApprovalStore
+from nanda_governance.coordinator import GovernanceCoordinator
 from tests.conftest import HAS_CRYPTOGRAPHY, skip_no_crypto
 
 if HAS_CRYPTOGRAPHY:
@@ -97,12 +96,8 @@ def test_complete_training_with_ledger() -> None:
 
 def test_submit_for_governance_unsigned() -> None:
     coord = GovernanceCoordinator()
-    output = coord.complete_training(
-        model_id="m1", weights_hash="abc"
-    )
-    approval = coord.submit_for_governance(
-        output, approved_by="alice"
-    )
+    output = coord.complete_training(model_id="m1", weights_hash="abc")
+    approval = coord.submit_for_governance(output, approved_by="alice")
     assert approval.model_id == "m1"
     assert approval.approved_by == "alice"
     assert approval.has_quorum() is True
@@ -111,50 +106,36 @@ def test_submit_for_governance_unsigned() -> None:
 
 def test_submit_with_validator_pass() -> None:
     coord = GovernanceCoordinator(validator=PassValidator())
-    output = coord.complete_training(
-        model_id="m1", weights_hash="abc"
-    )
-    approval = coord.submit_for_governance(
-        output, approved_by="alice"
-    )
+    output = coord.complete_training(model_id="m1", weights_hash="abc")
+    approval = coord.submit_for_governance(output, approved_by="alice")
     assert approval.model_id == "m1"
 
 
 def test_submit_with_validator_fail() -> None:
     coord = GovernanceCoordinator(validator=FailValidator())
-    output = coord.complete_training(
-        model_id="m1", weights_hash="abc"
-    )
+    output = coord.complete_training(model_id="m1", weights_hash="abc")
     with pytest.raises(ValueError, match="validation failed"):
         coord.submit_for_governance(output, approved_by="alice")
 
 
 def test_submit_with_scope_constraints() -> None:
     coord = GovernanceCoordinator()
-    output = coord.complete_training(
-        model_id="m1", weights_hash="abc"
-    )
-    approval = coord.submit_for_governance(
+    output = coord.complete_training(model_id="m1", weights_hash="abc")
+    _approval = coord.submit_for_governance(
         output,
         approved_by="alice",
         approved_environments=["staging"],
         approved_scopes=["scope-a"],
     )
-    assert coord.store.is_approved(
-        "m1", environment="staging", scope="scope-a"
-    )
-    assert not coord.store.is_approved(
-        "m1", environment="production"
-    )
+    assert coord.store.is_approved("m1", environment="staging", scope="scope-a")
+    assert not coord.store.is_approved("m1", environment="production")
 
 
 @skip_no_crypto
 def test_submit_with_signing() -> None:
     key = Ed25519PrivateKey.generate()
     coord = GovernanceCoordinator()
-    output = coord.complete_training(
-        model_id="m1", weights_hash="abc"
-    )
+    output = coord.complete_training(model_id="m1", weights_hash="abc")
     approval = coord.submit_for_governance(
         output,
         approved_by="alice",
@@ -170,10 +151,8 @@ def test_multi_approver_quorum() -> None:
     key_b = Ed25519PrivateKey.generate()
 
     coord = GovernanceCoordinator()
-    output = coord.complete_training(
-        model_id="m1", weights_hash="abc"
-    )
-    approval = coord.submit_for_governance(
+    output = coord.complete_training(model_id="m1", weights_hash="abc")
+    _approval = coord.submit_for_governance(
         output,
         approved_by="alice",
         private_key=key_a,
@@ -181,9 +160,7 @@ def test_multi_approver_quorum() -> None:
     )
     assert not coord.store.is_approved("m1")  # Only 1/2
 
-    has_quorum = coord.add_approval_signature(
-        "m1", "bob", key_b
-    )
+    has_quorum = coord.add_approval_signature("m1", "bob", key_b)
     assert has_quorum is True
     assert coord.store.is_approved("m1")
 
@@ -192,9 +169,7 @@ def test_multi_approver_quorum() -> None:
 async def test_full_three_plane_flow() -> None:
     ledger = FakeLedger()
     endpoint = FakeEndpoint()
-    coord = GovernanceCoordinator(
-        ledger=ledger, endpoint=endpoint
-    )
+    coord = GovernanceCoordinator(ledger=ledger, endpoint=endpoint)
 
     # Training plane
     output = coord.complete_training(
@@ -204,9 +179,7 @@ async def test_full_three_plane_flow() -> None:
     )
 
     # Governance plane
-    approval = coord.submit_for_governance(
-        output, approved_by="alice"
-    )
+    approval = coord.submit_for_governance(output, approved_by="alice")
 
     # Serving plane
     result = await coord.deploy_approved(approval)
@@ -222,9 +195,7 @@ async def test_full_three_plane_flow() -> None:
 
 def test_revoke_model() -> None:
     coord = GovernanceCoordinator()
-    output = coord.complete_training(
-        model_id="m1", weights_hash="abc"
-    )
+    output = coord.complete_training(model_id="m1", weights_hash="abc")
     coord.submit_for_governance(output, approved_by="alice")
     assert coord.store.is_approved("m1")
 
@@ -235,9 +206,7 @@ def test_revoke_model() -> None:
 def test_revoke_with_ledger() -> None:
     ledger = FakeLedger()
     coord = GovernanceCoordinator(ledger=ledger)
-    output = coord.complete_training(
-        model_id="m1", weights_hash="abc"
-    )
+    output = coord.complete_training(model_id="m1", weights_hash="abc")
     coord.submit_for_governance(output, approved_by="alice")
     coord.revoke_model("m1", "bob", "reason")
 
@@ -248,12 +217,8 @@ def test_revoke_with_ledger() -> None:
 @pytest.mark.asyncio
 async def test_deploy_after_revoke_fails() -> None:
     coord = GovernanceCoordinator()
-    output = coord.complete_training(
-        model_id="m1", weights_hash="abc"
-    )
-    approval = coord.submit_for_governance(
-        output, approved_by="alice"
-    )
+    output = coord.complete_training(model_id="m1", weights_hash="abc")
+    approval = coord.submit_for_governance(output, approved_by="alice")
     coord.revoke_model("m1", "bob", "reason")
 
     with pytest.raises(ValueError, match="not approved"):
@@ -262,9 +227,7 @@ async def test_deploy_after_revoke_fails() -> None:
 
 def test_drift_no_action() -> None:
     coord = GovernanceCoordinator()
-    output = coord.complete_training(
-        model_id="m1", weights_hash="abc"
-    )
+    output = coord.complete_training(model_id="m1", weights_hash="abc")
     coord.submit_for_governance(output, approved_by="alice")
 
     result = coord.check_drift(
@@ -278,9 +241,7 @@ def test_drift_no_action() -> None:
 
 def test_drift_auto_revoke() -> None:
     coord = GovernanceCoordinator()
-    output = coord.complete_training(
-        model_id="m1", weights_hash="abc"
-    )
+    output = coord.complete_training(model_id="m1", weights_hash="abc")
     coord.submit_for_governance(output, approved_by="alice")
 
     result = coord.check_drift(
@@ -295,9 +256,7 @@ def test_drift_auto_revoke() -> None:
 
 def test_drift_no_auto_revoke_by_default() -> None:
     coord = GovernanceCoordinator()
-    output = coord.complete_training(
-        model_id="m1", weights_hash="abc"
-    )
+    output = coord.complete_training(model_id="m1", weights_hash="abc")
     coord.submit_for_governance(output, approved_by="alice")
 
     result = coord.check_drift(

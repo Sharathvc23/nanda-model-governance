@@ -66,9 +66,7 @@ def verify_approval(approval: ModelApproval, public_key: Any) -> bool:
     from cryptography.exceptions import InvalidSignature
 
     try:
-        public_key.verify(
-            bytes.fromhex(approval.signature), digest.encode("utf-8")
-        )
+        public_key.verify(bytes.fromhex(approval.signature), digest.encode("utf-8"))
         return True
     except (InvalidSignature, ValueError):
         return False

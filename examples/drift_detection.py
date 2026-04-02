@@ -11,8 +11,8 @@ Usage::
 from __future__ import annotations
 
 from nanda_governance import (
-    GovernanceCoordinator,
     DriftConfig,
+    GovernanceCoordinator,
     check_distribution_drift,
     create_drift_alert,
 )
@@ -52,6 +52,7 @@ def main() -> None:
     # Scenario 3: distribution drift with custom config
     print("\n--- Scenario 3: Distribution drift ---")
     import random
+
     random.seed(42)
     training_outputs = [random.gauss(0.5, 0.1) for _ in range(200)]
     serving_outputs = [random.gauss(0.7, 0.15) for _ in range(200)]

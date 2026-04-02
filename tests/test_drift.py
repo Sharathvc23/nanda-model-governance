@@ -37,9 +37,7 @@ def test_accuracy_drift() -> None:
         {"accuracy": 0.70},
     )
     assert result.is_drifted is True
-    assert any(
-        m.name == "accuracy" and m.is_drifted for m in result.metrics
-    )
+    assert any(m.name == "accuracy" and m.is_drifted for m in result.metrics)
 
 
 def test_custom_config() -> None:
@@ -91,9 +89,7 @@ def test_create_alert_when_drifted() -> None:
 
 
 def test_create_alert_no_drift() -> None:
-    result = check_drift(
-        "m1", {"loss": 0.30}, {"loss": 0.30}
-    )
+    result = check_drift("m1", {"loss": 0.30}, {"loss": 0.30})
     alert = create_drift_alert(result)
     assert alert is None
 
@@ -106,9 +102,7 @@ def test_distribution_drift_detected() -> None:
     serving = [random.gauss(2.0, 1.0) for _ in range(100)]
     result = check_distribution_drift("m1", training, serving)
     assert result.is_drifted is True
-    assert any(
-        m.name == "ks_statistic" for m in result.metrics
-    )
+    assert any(m.name == "ks_statistic" for m in result.metrics)
 
 
 def test_distribution_drift_no_drift() -> None:

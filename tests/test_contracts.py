@@ -14,7 +14,6 @@ from nanda_governance.contracts import (
     ValidationResult,
 )
 
-
 # ------------------------------------------------------------------
 # Concrete implementations for protocol conformance testing
 # ------------------------------------------------------------------
@@ -119,9 +118,7 @@ def test_serving_endpoint_protocol() -> None:
 def test_model_validator_protocol() -> None:
     v = _StubValidator()
     assert isinstance(v, ModelValidator)
-    result = v.validate(
-        _StubTrainingResult(), _StubModelCard(), profile="default"
-    )
+    result = v.validate(_StubTrainingResult(), _StubModelCard(), profile="default")
     assert result.valid is True
 
 

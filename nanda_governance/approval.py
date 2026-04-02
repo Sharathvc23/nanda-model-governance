@@ -41,15 +41,11 @@ class ModelApproval:
         approver_signatures: Mapping of approver ID -> hex signature.
     """
 
-    approval_id: str = field(
-        default_factory=lambda: f"approval:{uuid4().hex[:16]}"
-    )
+    approval_id: str = field(default_factory=lambda: f"approval:{uuid4().hex[:16]}")
     model_id: str = ""
     weights_hash: str = ""
     approved_by: str = ""
-    approved_at: datetime = field(
-        default_factory=lambda: datetime.now(timezone.utc)
-    )
+    approved_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     expires_at: datetime | None = None
     profile: str = "default"
     correlation_id: str | None = None
@@ -129,9 +125,7 @@ class ModelApproval:
             "weights_hash": self.weights_hash,
             "approved_by": self.approved_by,
             "approved_at": self.approved_at.isoformat(),
-            "expires_at": (
-                self.expires_at.isoformat() if self.expires_at else None
-            ),
+            "expires_at": (self.expires_at.isoformat() if self.expires_at else None),
             "profile": self.profile,
             "correlation_id": self.correlation_id,
             "signature": self.signature,
@@ -158,9 +152,7 @@ class ModelApproval:
             expires_at = None
 
         return cls(
-            approval_id=data.get(
-                "approval_id", f"approval:{uuid4().hex[:16]}"
-            ),
+            approval_id=data.get("approval_id", f"approval:{uuid4().hex[:16]}"),
             model_id=data.get("model_id", ""),
             weights_hash=data.get("weights_hash", ""),
             approved_by=data.get("approved_by", ""),
@@ -198,9 +190,7 @@ class ApprovalStore(Protocol):
         scope: str | None = None,
     ) -> bool: ...
 
-    def revoke(
-        self, model_id: str, revoked_by: str, reason: str
-    ) -> bool: ...
+    def revoke(self, model_id: str, revoked_by: str, reason: str) -> bool: ...
 
 
 __all__ = [

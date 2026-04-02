@@ -178,9 +178,7 @@ class GovernanceCoordinator:
 
         expires_at = None
         if approval_ttl_days is not None:
-            expires_at = datetime.now(timezone.utc) + timedelta(
-                days=approval_ttl_days
-            )
+            expires_at = datetime.now(timezone.utc) + timedelta(days=approval_ttl_days)
 
         approval = ModelApproval(
             model_id=training_output.model_id,
@@ -201,9 +199,7 @@ class GovernanceCoordinator:
             approval.signature = sign_approval(approval, private_key)
 
         # First approver's signature
-        approval.add_signature(
-            approved_by, approval.signature or "unsigned"
-        )
+        approval.add_signature(approved_by, approval.signature or "unsigned")
 
         self._store.store(approval)
 
@@ -214,9 +210,7 @@ class GovernanceCoordinator:
                     "model_id": approval.model_id,
                     "approved_by": approved_by,
                     "profile": profile,
-                    "expires_at": (
-                        expires_at.isoformat() if expires_at else None
-                    ),
+                    "expires_at": (expires_at.isoformat() if expires_at else None),
                     "correlation_id": training_output.correlation_id,
                 },
             )
@@ -337,9 +331,7 @@ class GovernanceCoordinator:
                     "model_id": model_id,
                     "revoked_by": revoked_by,
                     "reason": reason,
-                    "correlation_id": (
-                        approval.correlation_id if approval else None
-                    ),
+                    "correlation_id": (approval.correlation_id if approval else None),
                 },
             )
 
@@ -375,9 +367,7 @@ class GovernanceCoordinator:
         Returns:
             DriftCheckResult with drift assessment.
         """
-        result = check_drift(
-            model_id, training_metrics, serving_metrics, config=config
-        )
+        result = check_drift(model_id, training_metrics, serving_metrics, config=config)
 
         if self._ledger is not None and result.is_drifted:
             approval = self._store.get(model_id)
@@ -389,9 +379,7 @@ class GovernanceCoordinator:
                     "confidence": result.confidence,
                     "summary": result.summary,
                     "recommended_action": result.recommended_action,
-                    "correlation_id": (
-                        approval.correlation_id if approval else None
-                    ),
+                    "correlation_id": (approval.correlation_id if approval else None),
                 },
             )
 
@@ -404,23 +392,16 @@ class GovernanceCoordinator:
                     result.recommended_action,
                 )
 
-        if (
-            auto_revoke
-            and result.is_drifted
-            and result.overall_severity >= 0.8
-        ):
+        if auto_revoke and result.is_drifted and result.overall_severity >= 0.8:
             logger.warning(
-                "Auto-revoking model %s due to severe drift "
-                "(severity=%.2f)",
+                "Auto-revoking model %s due to severe drift " "(severity=%.2f)",
                 model_id,
                 result.overall_severity,
             )
             self.revoke_model(
                 model_id,
                 revoked_by="system:drift-detector",
-                reason=(
-                    f"Automatic revocation due to drift: {result.summary}"
-                ),
+                reason=(f"Automatic revocation due to drift: {result.summary}"),
             )
 
         return result
@@ -434,9 +415,7 @@ class GovernanceCoordinator:
 class _SimpleTrainingResult:
     """Minimal TrainingResult for validator protocol."""
 
-    def __init__(
-        self, metrics: dict[str, Any], model_id: str
-    ) -> None:
+    def __init__(self, metrics: dict[str, Any], model_id: str) -> None:
         self._metrics = metrics
         self._model_id = model_id
 

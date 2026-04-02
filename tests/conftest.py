@@ -30,7 +30,7 @@ def sample_approval() -> ModelApproval:
 
 HAS_CRYPTOGRAPHY = False
 try:
-    from cryptography.hazmat.primitives.asymmetric.ed25519 import (
+    from cryptography.hazmat.primitives.asymmetric.ed25519 import (  # noqa: F401
         Ed25519PrivateKey,
     )
 

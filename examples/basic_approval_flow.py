@@ -37,9 +37,7 @@ async def main() -> None:
     print(f"Approved: {approval.approval_id} (expires {approval.expires_at})")
 
     # 3. Serving Plane — deploy
-    result = await coord.deploy_approved(
-        approval, environment="staging"
-    )
+    result = await coord.deploy_approved(approval, environment="staging")
     print(f"Deployed: {result.promoted} at {result.promoted_at}")
 
 

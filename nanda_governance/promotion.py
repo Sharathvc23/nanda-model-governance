@@ -83,21 +83,15 @@ async def promote_model(
         )
 
     # Gate 4: store confirms active
-    if not store.is_approved(
-        approval.model_id, environment=environment, scope=scope
-    ):
-        raise ValueError(
-            f"Model {approval.model_id} not approved in store"
-        )
+    if not store.is_approved(approval.model_id, environment=environment, scope=scope):
+        raise ValueError(f"Model {approval.model_id} not approved in store")
 
     # Gate 5: optional signature verification
     if public_key is not None:
         from nanda_governance.signing import verify_approval
 
         if not verify_approval(approval, public_key):
-            raise ValueError(
-                f"Invalid signature for model {approval.model_id}"
-            )
+            raise ValueError(f"Invalid signature for model {approval.model_id}")
 
     # Record evidence
     evidence_id: str | None = None

@@ -211,9 +211,7 @@ class PostgresApprovalStore:
             return False
         return True
 
-    def revoke(
-        self, model_id: str, revoked_by: str, reason: str
-    ) -> bool:
+    def revoke(self, model_id: str, revoked_by: str, reason: str) -> bool:
         """Revoke an existing approval."""
         with self._transaction() as cur:
             cur.execute(
@@ -235,9 +233,7 @@ class PostgresApprovalStore:
             )
         return updated
 
-    def list_expiring(
-        self, within_days: int = 7
-    ) -> list[ModelApproval]:
+    def list_expiring(self, within_days: int = 7) -> list[ModelApproval]:
         """List approvals expiring within the specified window."""
         with self._transaction() as cur:
             cur.execute(

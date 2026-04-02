@@ -68,8 +68,7 @@ class InMemoryApprovalStore:
             return False
         if not approval.is_valid_for(environment, scope):
             logger.warning(
-                "Approval for model %s not valid for "
-                "environment=%s scope=%s",
+                "Approval for model %s not valid for " "environment=%s scope=%s",
                 model_id,
                 environment,
                 scope,
@@ -85,9 +84,7 @@ class InMemoryApprovalStore:
             return False
         return True
 
-    def revoke(
-        self, model_id: str, revoked_by: str, reason: str
-    ) -> bool:
+    def revoke(self, model_id: str, revoked_by: str, reason: str) -> bool:
         """Revoke an existing approval."""
         with self._lock:
             approval = self._approvals.get(model_id)

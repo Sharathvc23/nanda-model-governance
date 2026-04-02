@@ -38,7 +38,7 @@ from nanda_governance.signing import sign_approval, verify_approval
 from nanda_governance.stores.memory import InMemoryApprovalStore
 from nanda_governance.training import TrainingOutput
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 __all__ = [
     # coordinator

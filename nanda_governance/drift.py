@@ -58,9 +58,7 @@ class DriftCheckResult:
     """Result of a drift check operation."""
 
     model_id: str
-    checked_at: datetime = field(
-        default_factory=lambda: datetime.now(timezone.utc)
-    )
+    checked_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     is_drifted: bool = False
     metrics: list[DriftMetric] = field(default_factory=list)
     overall_severity: float = 0.0
@@ -100,9 +98,7 @@ class DriftAlert:
     model_id: str
     severity: str
     result: DriftCheckResult
-    alerted_at: datetime = field(
-        default_factory=lambda: datetime.now(timezone.utc)
-    )
+    alerted_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize for notification systems."""
@@ -188,8 +184,7 @@ def check_drift(
             severity = (
                 min(
                     1.0,
-                    (config.min_accuracy_ratio - acc_ratio)
-                    / config.min_accuracy_ratio,
+                    (config.min_accuracy_ratio - acc_ratio) / config.min_accuracy_ratio,
                 )
                 if is_drifted
                 else 0.0
@@ -234,8 +229,7 @@ def check_drift(
 
     return DriftCheckResult(
         model_id=model_id,
-        is_drifted=overall_drifted
-        and confidence >= config.confidence_threshold,
+        is_drifted=overall_drifted and confidence >= config.confidence_threshold,
         metrics=metrics,
         overall_severity=overall_severity,
         confidence=confidence,
@@ -281,12 +275,8 @@ def check_distribution_drift(
     min_val, max_val = min(all_values), max(all_values)
     range_val = max_val - min_val if max_val > min_val else 1.0
 
-    training_norm = sorted(
-        (v - min_val) / range_val for v in training_outputs
-    )
-    serving_norm = sorted(
-        (v - min_val) / range_val for v in serving_outputs
-    )
+    training_norm = sorted((v - min_val) / range_val for v in training_outputs)
+    serving_norm = sorted((v - min_val) / range_val for v in serving_outputs)
 
     # Approximate KS statistic: max |CDF_A - CDF_B|
     n_train, n_serve = len(training_norm), len(serving_norm)
@@ -316,17 +306,13 @@ def check_distribution_drift(
                 threshold=config.ks_threshold,
                 is_drifted=is_drifted,
                 drift_severity=(
-                    min(1.0, ks_statistic / config.ks_threshold)
-                    if is_drifted
-                    else 0.0
+                    min(1.0, ks_statistic / config.ks_threshold) if is_drifted else 0.0
                 ),
                 details=f"KS statistic: {ks_statistic:.3f}",
             )
         ],
         overall_severity=(
-            min(1.0, ks_statistic / config.ks_threshold)
-            if is_drifted
-            else 0.0
+            min(1.0, ks_statistic / config.ks_threshold) if is_drifted else 0.0
         ),
         confidence=0.95,
         summary=(

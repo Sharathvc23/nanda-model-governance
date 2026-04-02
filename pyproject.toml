@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "nanda-model-governance"
-version = "0.1.0"
+version = "0.2.0"
 description = "Three-plane ML governance with cryptographic approvals for NANDA agent registries"
 readme = "README.md"
 license = "MIT"
@@ -28,7 +28,8 @@ dependencies = []
 crypto = ["cryptography>=41.0"]
 postgres = ["psycopg2-binary>=2.9"]
 integrity = ["nanda-model-integrity-layer>=0.1.0"]
-dev = ["pytest>=7.0", "ruff>=0.1.0", "mypy>=1.0", "coverage>=7.0"]
+dev = ["pytest>=7.0", "pytest-asyncio>=0.21", "ruff>=0.1.0", "mypy>=1.0", "coverage>=7.0"]
+all = ["nanda-model-governance[crypto,postgres,integrity]"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["nanda_governance"]

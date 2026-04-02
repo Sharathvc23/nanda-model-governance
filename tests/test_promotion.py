@@ -63,9 +63,7 @@ async def test_promote_wrong_scope(
 ) -> None:
     store, approval = active_store
     with pytest.raises(ValueError, match="not valid"):
-        await promote_model(
-            approval, store, scope="wrong-scope"
-        )
+        await promote_model(approval, store, scope="wrong-scope")
 
 
 @pytest.mark.asyncio
@@ -74,9 +72,7 @@ async def test_promote_wrong_environment(
 ) -> None:
     store, approval = active_store
     with pytest.raises(ValueError, match="not valid"):
-        await promote_model(
-            approval, store, environment="dev"
-        )
+        await promote_model(approval, store, environment="dev")
 
 
 @pytest.mark.asyncio
@@ -119,12 +115,8 @@ async def test_promote_with_ledger(
         def __init__(self) -> None:
             self.entries: list[dict[str, object]] = []
 
-        def record(
-            self, entry_type: str, data: dict[str, object]
-        ) -> str:
-            self.entries.append(
-                {"type": entry_type, "data": data}
-            )
+        def record(self, entry_type: str, data: dict[str, object]) -> str:
+            self.entries.append({"type": entry_type, "data": data})
             return f"entry-{len(self.entries)}"
 
     ledger = FakeLedger()

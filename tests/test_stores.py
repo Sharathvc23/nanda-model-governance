@@ -91,9 +91,7 @@ def test_revoke_returns_true(
     store: InMemoryApprovalStore, sample_approval: ModelApproval
 ) -> None:
     store.store(sample_approval)
-    result = store.revoke(
-        sample_approval.model_id, "bob", "security issue"
-    )
+    result = store.revoke(sample_approval.model_id, "bob", "security issue")
     assert result is True
 
 
@@ -105,15 +103,11 @@ def test_revoke_nonexistent_returns_false(
 
 
 def test_overwrite_approval(store: InMemoryApprovalStore) -> None:
-    a1 = ModelApproval(
-        model_id="m1", approved_by="alice", profile="v1"
-    )
+    a1 = ModelApproval(model_id="m1", approved_by="alice", profile="v1")
     a1.add_signature("alice", "sig")
     store.store(a1)
 
-    a2 = ModelApproval(
-        model_id="m1", approved_by="bob", profile="v2"
-    )
+    a2 = ModelApproval(model_id="m1", approved_by="bob", profile="v2")
     a2.add_signature("bob", "sig")
     store.store(a2)
 

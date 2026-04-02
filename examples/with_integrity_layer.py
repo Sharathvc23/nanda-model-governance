@@ -12,7 +12,7 @@ Usage::
 
 from __future__ import annotations
 
-from nanda_governance import GovernanceCoordinator, ModelApproval
+from nanda_governance import GovernanceCoordinator
 from nanda_governance.nanda import (
     approval_to_integrity_facts,
     create_provenance_with_approval,
@@ -28,9 +28,7 @@ def main() -> None:
         weights_hash="sha256:112233445566",
         metrics={"loss": 0.18},
     )
-    approval = coord.submit_for_governance(
-        output, approved_by="governance-lead"
-    )
+    approval = coord.submit_for_governance(output, approved_by="governance-lead")
 
     # Convert to integrity facts
     facts = approval_to_integrity_facts(approval)
