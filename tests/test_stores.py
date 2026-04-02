@@ -1,4 +1,19 @@
-"""Tests for InMemoryApprovalStore CRUD operations."""
+"""Tests for InMemoryApprovalStore CRUD operations.
+
+# Step 1 — Assumption Audit
+# - InMemoryApprovalStore stores approvals keyed by model_id
+# - is_approved checks status, expiration, quorum, environment, scope
+# - revoke sets status to revoked; returns True if found, False otherwise
+# - store() overwrites existing approval for same model_id
+
+# Step 2 — Gap Analysis
+# - No full lifecycle test: store -> revoke -> get shows revoked status
+# - No test: is_approved returns False after revoke (explicit assertion)
+
+# Step 3 — Break It List
+# - Full lifecycle: store, approve, revoke, check not approved, get revoked
+# - is_approved after revoke must return False
+"""
 
 from __future__ import annotations
 
@@ -115,3 +130,42 @@ def test_overwrite_approval(store: InMemoryApprovalStore) -> None:
     assert retrieved is not None
     assert retrieved.approved_by == "bob"
     assert retrieved.profile == "v2"
+
+
+# -- Adversarial store tests -------------------------------------------
+
+
+def test_store_then_revoke_then_get_shows_revoked(
+    store: InMemoryApprovalStore,
+) -> None:
+    """Full lifecycle: store -> approve -> revoke -> get shows revoked status."""
+    approval = ModelApproval(
+        model_id="m-lifecycle",
+        approved_by="alice",
+    )
+    approval.add_signature("alice", "sig")
+    store.store(approval)
+    assert store.is_approved("m-lifecycle") is True
+
+    store.revoke("m-lifecycle", "bob", "policy change")
+    assert store.is_approved("m-lifecycle") is False
+
+    retrieved = store.get("m-lifecycle")
+    assert retrieved is not None
+    assert retrieved.status == "revoked"
+
+
+def test_is_approved_after_revoke_returns_false(
+    store: InMemoryApprovalStore,
+) -> None:
+    """Explicit assertion: is_approved returns False after revocation."""
+    approval = ModelApproval(
+        model_id="m-revoke-check",
+        approved_by="alice",
+    )
+    approval.add_signature("alice", "sig")
+    store.store(approval)
+    assert store.is_approved("m-revoke-check") is True
+
+    store.revoke("m-revoke-check", "admin", "test")
+    assert store.is_approved("m-revoke-check") is False

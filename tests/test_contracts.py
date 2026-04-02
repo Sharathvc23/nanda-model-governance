@@ -1,4 +1,17 @@
-"""Tests for protocol definitions in contracts.py."""
+"""Tests for protocol definitions in contracts.py.
+
+# Step 1 — Assumption Audit
+# - Protocols: ModelCard, TrainingResult, AdapterRegistry, EvidenceLedger,
+#   ServingEndpoint, ModelValidator are runtime-checkable
+# - ValidationResult is a frozen dataclass with valid and message fields
+
+# Step 2 — Gap Analysis
+# - Protocol conformance is well covered with stub implementations
+# - No additional adversarial tests needed for protocol definitions
+
+# Step 3 — Break It List
+# - Protocol conformance assertions are sufficient for contract tests
+"""
 
 from __future__ import annotations
 

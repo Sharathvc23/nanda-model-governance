@@ -1,4 +1,22 @@
-"""Tests for GovernanceCoordinator — full three-plane flow."""
+"""Tests for GovernanceCoordinator — full three-plane flow.
+
+# Step 1 — Assumption Audit
+# - GovernanceCoordinator orchestrates training -> governance -> serving planes
+# - complete_training returns TrainingOutput with correlation_id
+# - submit_for_governance validates, creates approval, optionally signs
+# - revoke_model marks model as not approved in store
+# - check_drift can auto-revoke on severe drift
+
+# Step 2 — Gap Analysis
+# - No test for complete_training with empty model_id
+# - No test for submitting governance twice for same model (overwrite behavior)
+# - No test for revoking a nonexistent model
+
+# Step 3 — Break It List
+# - Empty model_id in complete_training: should it raise or accept?
+# - Second governance submission for same model overwrites approval
+# - Revoking nonexistent model should not crash
+"""
 
 from __future__ import annotations
 
@@ -266,3 +284,35 @@ def test_drift_no_auto_revoke_by_default() -> None:
     )
     assert result.is_drifted is True
     assert coord.store.is_approved("m1")  # NOT revoked
+
+
+# -- Adversarial coordinator tests ------------------------------------
+
+
+def test_complete_training_with_empty_model_id() -> None:
+    """Empty model_id is accepted (no validation at training plane)."""
+    coord = GovernanceCoordinator()
+    output = coord.complete_training(model_id="", weights_hash="abc")
+    assert output.model_id == ""
+    assert output.correlation_id  # still gets a correlation_id
+
+
+def test_submit_governance_twice_same_model() -> None:
+    """Second governance submission overwrites the first in the store."""
+    coord = GovernanceCoordinator()
+    output = coord.complete_training(model_id="m1", weights_hash="abc")
+    _first = coord.submit_for_governance(output, approved_by="alice")
+    second = coord.submit_for_governance(output, approved_by="bob")
+
+    retrieved = coord.store.get("m1")
+    assert retrieved is not None
+    assert retrieved.approved_by == "bob"
+    assert retrieved.approval_id == second.approval_id
+
+
+def test_revoke_nonexistent_model() -> None:
+    """Revoking a model that was never approved should not crash."""
+    coord = GovernanceCoordinator()
+    # Should not raise — revoke_model calls store.revoke which returns False
+    coord.revoke_model("nonexistent", "admin", "cleanup")
+    assert not coord.store.is_approved("nonexistent")

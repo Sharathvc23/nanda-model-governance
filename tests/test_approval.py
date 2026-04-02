@@ -1,4 +1,22 @@
-"""Tests for ModelApproval creation, serialization, expiration, and scope."""
+"""Tests for ModelApproval creation, serialization, expiration, and scope.
+
+# Step 1 — Assumption Audit
+# - ModelApproval defaults: status=active, required_approvers=1
+# - compute_hash() excludes signature/status/approver_signatures
+# - is_expired() uses UTC comparison; None expires_at = never
+# - has_quorum() checks len(approver_signatures) >= required_approvers
+# - is_valid_for() checks environment and scope against allow-lists
+
+# Step 2 — Gap Analysis
+# - No test confirming same input -> same hash (determinism with same fields)
+# - No test confirming field change -> different hash
+# - No test for required_approvers=0 (always quorum?)
+
+# Step 3 — Break It List
+# - compute_hash deterministic: identical approvals -> same hash
+# - compute_hash changes: modify model_id -> different hash
+# - required_approvers=0: has_quorum should be True immediately
+"""
 
 from __future__ import annotations
 
@@ -127,3 +145,41 @@ def test_from_dict_defaults() -> None:
     assert a.profile == "default"
     assert a.status == "active"
     assert a.required_approvers == 1
+
+
+# -- Adversarial tests ------------------------------------------------
+
+
+def test_compute_hash_deterministic_same_input() -> None:
+    """Same approval fields produce identical hashes across instances."""
+    kwargs = dict(
+        approval_id="fixed",
+        model_id="m1",
+        weights_hash="abc",
+        approved_by="alice",
+        approved_at=datetime(2025, 1, 1, tzinfo=UTC),
+        profile="default",
+        required_approvers=1,
+    )
+    a = ModelApproval(**kwargs)
+    b = ModelApproval(**kwargs)
+    assert a.compute_hash() == b.compute_hash()
+
+
+def test_compute_hash_changes_on_field_modification() -> None:
+    """Changing model_id produces a different hash."""
+    base = dict(
+        approval_id="fixed",
+        weights_hash="abc",
+        approved_by="alice",
+        approved_at=datetime(2025, 1, 1, tzinfo=UTC),
+    )
+    a = ModelApproval(model_id="original", **base)
+    b = ModelApproval(model_id="modified", **base)
+    assert a.compute_hash() != b.compute_hash()
+
+
+def test_approval_with_zero_required_approvers() -> None:
+    """R5: required_approvers=0 means has_quorum is True even with no signatures."""
+    a = ModelApproval(required_approvers=0)
+    assert a.has_quorum() is True

@@ -1,4 +1,17 @@
-"""Tests for nanda_governance.nanda integration functions."""
+"""Tests for nanda_governance.nanda integration functions.
+
+# Step 1 — Assumption Audit
+# - approval_to_integrity_facts converts ModelApproval to dict with governance key
+# - create_provenance_with_approval requires nanda-model-integrity-layer installed
+# - has_quorum reflects signature count vs required_approvers
+
+# Step 2 — Gap Analysis
+# - Good coverage of dict structure, expiry handling, quorum logic
+# - ImportError path tested with mock
+
+# Step 3 — Break It List
+# - Dict keys validated; quorum edge case covered
+"""
 
 from __future__ import annotations
 

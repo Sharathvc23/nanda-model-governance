@@ -1,4 +1,18 @@
-"""Tests for the promotion gate."""
+"""Tests for the promotion gate.
+
+# Step 1 — Assumption Audit
+# - promote_model checks: is_approved, not expired, scope/env validity, quorum
+# - Raises ValueError for each failure condition
+# - Returns PromotionResult with promoted=True on success
+# - Optional ledger records model_deployment evidence
+
+# Step 2 — Gap Analysis
+# - Good coverage of success, expired, wrong scope/env, revoked, no quorum
+# - Ledger integration tested
+
+# Step 3 — Break It List
+# - All gate failures raise ValueError with descriptive match (covered)
+"""
 
 from __future__ import annotations
 

@@ -1,4 +1,20 @@
-"""Tests for Ed25519 signing and verification."""
+"""Tests for Ed25519 signing and verification.
+
+# Step 1 — Assumption Audit
+# - sign_approval uses Ed25519 private key over compute_hash() of approval
+# - verify_approval re-computes hash and verifies Ed25519 signature
+# - Wrong key -> verification fails; tampered fields -> verification fails
+# - Empty signature returns False
+# - Missing cryptography package raises ImportError
+
+# Step 2 — Gap Analysis
+# - R7 crypto forgery tests: wrong key, tampered payload covered
+# - Empty signature edge case covered
+# - ImportError when crypto missing covered
+
+# Step 3 — Break It List
+# - All R7 forgery scenarios covered (wrong key, tamper, empty sig)
+"""
 
 from __future__ import annotations
 

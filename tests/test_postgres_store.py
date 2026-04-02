@@ -1,4 +1,20 @@
-"""Tests for PostgresApprovalStore with mocked psycopg2."""
+"""Tests for PostgresApprovalStore with mocked psycopg2.
+
+# Step 1 — Assumption Audit
+# - PostgresApprovalStore uses psycopg2 ThreadedConnectionPool
+# - store() executes INSERT ... ON CONFLICT DO UPDATE
+# - get() returns ModelApproval from row or None
+# - revoke() executes UPDATE ... SET status='revoked'
+# - _row_to_approval handles both datetime objects and ISO strings
+
+# Step 2 — Gap Analysis
+# - All CRUD paths tested with mocked cursor
+# - _row_to_approval string date parsing tested
+
+# Step 3 — Break It List
+# - Non-existent get returns None (covered)
+# - Revoke non-existent returns False (covered)
+"""
 
 from __future__ import annotations
 

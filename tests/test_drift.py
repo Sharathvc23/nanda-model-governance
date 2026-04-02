@@ -1,4 +1,24 @@
-"""Tests for drift detection."""
+"""Tests for drift detection.
+
+# Step 1 — Assumption Audit
+# - check_drift compares loss (relative increase) and accuracy (ratio)
+# - max_loss_increase default 0.20; check is strict > (not >=)
+# - check_distribution_drift uses custom KS statistic; needs >= 10 samples
+# - Confidence is 0.0 when no metrics; 1.0 when metrics present
+# - Severity thresholds: <0.3 monitor, <0.6 investigate, <0.8 investigate, >=0.8 revoke
+
+# Step 2 — Gap Analysis
+# - No test for drift at exact threshold (is_drifted boundary)
+# - No test for identical training/serving metrics
+# - No test for identical distributions (KS ~= 0)
+# - No test for exactly 10 samples (minimum boundary)
+
+# Step 3 — Break It List
+# - R5: loss increase exactly at threshold -> not drifted (strict >)
+# - Identical metrics -> no drift, severity 0
+# - Distribution with identical data -> KS near 0
+# - Exactly 10 samples should be accepted (boundary)
+"""
 
 from __future__ import annotations
 
@@ -146,3 +166,48 @@ def test_alert_severity_levels() -> None:
     alert = create_drift_alert(result)
     assert alert is not None
     assert alert.severity == "critical"
+
+
+# -- Adversarial drift tests -------------------------------------------
+
+
+def test_drift_at_exact_threshold() -> None:
+    """R5: loss increase exactly at max_loss_increase -> not drifted (strict >)."""
+    config = DriftConfig(max_loss_increase=0.20)
+    result = check_drift(
+        "m1",
+        {"loss": 1.00},
+        {"loss": 1.20},  # exactly 20% increase
+        config=config,
+    )
+    assert result.is_drifted is False
+
+
+def test_drift_with_identical_metrics() -> None:
+    """Identical serving and training metrics -> no drift."""
+    result = check_drift(
+        "m1",
+        {"loss": 0.35, "accuracy": 0.92},
+        {"loss": 0.35, "accuracy": 0.92},
+    )
+    assert result.is_drifted is False
+    assert result.overall_severity == 0.0
+
+
+def test_distribution_drift_identical_distributions() -> None:
+    """Identical distributions -> KS statistic near 0, no drift."""
+    data = [float(i) for i in range(50)]
+    result = check_distribution_drift("m1", data, list(data))
+    assert result.is_drifted is False
+    ks_metric = next(m for m in result.metrics if m.name == "ks_statistic")
+    assert ks_metric.serving_value < 0.05  # KS near 0 for identical data
+
+
+def test_distribution_drift_with_exactly_10_samples() -> None:
+    """R5: exactly 10 samples per side is the minimum accepted."""
+    training = [float(i) for i in range(10)]
+    serving = [float(i) + 100.0 for i in range(10)]
+    result = check_distribution_drift("m1", training, serving)
+    # Should be processed (not rejected as insufficient)
+    assert result.confidence > 0.0
+    assert result.is_drifted is True
